@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Quản lý tour spa cho kỹ thuật viên</title>
+<style>
+  :root{--radius:12px;--pad:14px;--gap:10px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+  body{margin:0;background:#f6f7fb;color:#111}
+  header{padding:22px 20px;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.06);position:sticky;top:0;z-index:10}
+  h1{margin:0;font-size:20px}
+  .wrap{max-width:1100px;margin:20px auto;padding:0 16px}
+  form{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:var(--gap);background:#fff;padding:var(--pad);border-radius:var(--radius);box-shadow:0 2px 10px rgba(0,0,0,.05)}
+  input,select,button{padding:12px;border:1px solid #ddd;border-radius:10px;font-size:14px}
+  input:focus,select:focus{outline:none;border-color:#7a8cff;box-shadow:0 0 0 3px rgba(122,140,255,.15)}
+  button{border:none;cursor:pointer}
+  .btn-primary{background:#5865f2;color:#fff}
+  .btn-secondary{background:#eee}
+  .toolbar{display:flex;gap:8px;align-items:center;margin:14px 0}
+  .toolbar input{flex:1}
+  table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+  th,td{padding:12px 10px;border-bottom:1px solid #f0f0f0;font-size:14px;text-align:left}
+  th{background:#fafbff;font-weight:600}
+  tr:last-child td{border-bottom:none}
+  .muted{color:#666;font-size:12px}
+  .pill{padding:4px 8px;border-radius:99px;background:#eef1ff;display:inline-block}
+  .row-actions{display:flex;gap:6px}
+  .empty{padding:22px;text-align:center;color:#777}
+  footer{margin:24px 0;color:#666}
+</style>
+</head>
+<body>
+  <header>
+    <h1>Quản lý tour spa (kỹ thuật viên)</h1>
+    <div class="muted">Nhập nhanh: Tên KH • SĐT • Loại dịch vụ</div>
+  </header>
+
+  <div class="wrap">
+    <form id="entryForm" autocomplete="off">
+      <input id="name" placeholder="Tên khách hàng *" required />
+      <input id="phone" placeholder="Số điện thoại *" required />
+      <input id="service" placeholder="Loại dịch vụ *" required />
+      <button class="btn-primary" type="submit">Thêm</button>
+    </form>
+
+    <div class="toolbar">
+      <input id="search" placeholder="Tìm theo tên / SĐT / dịch vụ..." />
+      <button id="exportCsv" class="btn-secondary">Xuất CSV</button>
+      <button id="clearAll" class="btn-secondary" title="Xóa toàn bộ dữ liệu">Xóa tất cả</button>
+    </div>
+
+    <table id="dataTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Tên KH</th>
+          <th>SĐT</th>
+          <th>Dịch vụ</th>
+          <th>Thời gian</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+      <tbody id="tbody">
+        <tr class="empty"><td colspan="6">Chưa có dữ liệu</td></tr>
+      </tbody>
+    </table>
+
+    <footer>
+      <div class="muted">Dữ liệu được lưu cục bộ trên trình duyệt của bạn (localStorage).</div>
+    </footer>
+  </div>
+
+<script>
+const LS_KEY = "spaTourRows_v1";
+
+const $ = (sel) => document.querySelector(sel);
+const form = $("#entryForm");
+const nameEl = $("#name");
+const phoneEl = $("#phone");
+const serviceEl = $("#service");
+const searchEl = $("#search");
+const tbody = $("#tbody");
+const exportBtn = $("#exportCsv");
+const clearBtn = $("#clearAll");
+
+let rows = loadRows();
+render(rows);
+
+// Helpers
+function loadRows(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  }catch(e){ return []; }
+}
+function saveRows(){ localStorage.setItem(LS_KEY, JSON.stringify(rows)); }
+function nowISO(){ return new Date().toISOString(); }
+function formatTime(iso){
+  const d = new Date(iso);
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const yyyy = d.getFullYear();
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mi = String(d.getMinutes()).padStart(2,'0');
+  return `${dd}/${mm}/${yyyy} ${hh}:${mi}`;
+}
+function validatePhone(p){
+  // Cho phép 9–12 chữ số, bỏ khoảng trắng và dấu
+  const cleaned = (p||"").replace(/[^\d]/g,"");
+  return cleaned.length>=9 && cleaned.length<=12;
+}
+function render(list){
+  tbody.innerHTML = "";
+  if(!list.length){
+    const tr = document.createElement("tr");
+    tr.className = "empty";
+    tr.innerHTML = `<td colspan="6">Chưa có dữ liệu</td>`;
+    tbody.appendChild(tr);
+    return;
+  }
+  list.forEach((r, idx)=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${idx+1}</td>
+      <td>${escapeHtml(r.name)}</td>
+      <td>${escapeHtml(r.phone)}</td>
+      <td><span class="pill">${escapeHtml(r.service)}</span></td>
+      <td class="muted">${formatTime(r.createdAt)}</td>
+      <td class="row-actions">
+        <button data-id="${r.id}" data-act="edit">Sửa</button>
+        <button data-id="${r.id}" data-act="del">Xóa</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+
+// Add
+form.addEventListener("submit", (e)=>{
+  e.preventDefault();
+  const name = nameEl.value.trim();
+  const phone = phoneEl.value.trim();
+  const service = serviceEl.value.trim();
+
+  if(!name || !phone || !service){ alert("Vui lòng nhập đầy đủ Tên, SĐT và Loại dịch vụ."); return; }
+  if(!validatePhone(phone)){ alert("Số điện thoại chưa đúng định dạng (9–12 chữ số)."); return; }
+
+  const row = { id: crypto.randomUUID(), name, phone, service, createdAt: nowISO() };
+  rows.unshift(row);
+  saveRows();
+  form.reset();
+  nameEl.focus();
+  applyFilter();
+});
+
+// Edit / Delete
+tbody.addEventListener("click", (e)=>{
+  const btn = e.target.closest("button");
+  if(!btn) return;
+  const id = btn.getAttribute("data-id");
+  const act = btn.getAttribute("data-act");
+  const idx = rows.findIndex(r=>r.id===id);
+  if(idx<0) return;
+
+  if(act==="del"){
+    if(confirm("Xóa mục này?")){
+      rows.splice(idx,1);
+      saveRows();
+      applyFilter();
+    }
+  }else if(act==="edit"){
+    const curr = rows[idx];
+    const name = prompt("Tên KH:", curr.name); if(name===null) return;
+    const phone = prompt("SĐT:", curr.phone); if(phone===null) return;
+    const service = prompt("Loại dịch vụ:", curr.service); if(service===null) return;
+
+    if(!name.trim() || !phone.trim() || !service.trim()){ alert("Không được để trống."); return; }
+    if(!validatePhone(phone)){ alert("Số điện thoại chưa đúng định dạng."); return; }
+
+    rows[idx] = {...curr, name:name.trim(), phone:phone.trim(), service:service.trim()};
+    saveRows();
+    applyFilter();
+  }
+});
+
+// Search
+searchEl.addEventListener("input", applyFilter);
+function applyFilter(){
+  const q = searchEl.value.trim().toLowerCase();
+  if(!q){ render(rows); return; }
+  const filtered = rows.filter(r =>
+    r.name.toLowerCase().includes(q) ||
+    r.phone.toLowerCase().includes(q) ||
+    r.service.toLowerCase().includes(q)
+  );
+  render(filtered);
+}
+
+// Export CSV
+exportBtn.addEventListener("click", ()=>{
+  if(!rows.length){ alert("Chưa có dữ liệu để xuất."); return; }
+  const header = ["STT","Tên KH","SĐT","Loại dịch vụ","Thời gian"];
+  const csvRows = [header.join(",")];
+  rows.forEach((r,i)=>{
+    csvRows.push([
+      i+1,
+      `"${r.name.replace(/"/g,'""')}"`,
+      `"${r.phone.replace(/"/g,'""')}"`,
+      `"${r.service.replace(/"/g,'""')}"`,
+      `"${formatTime(r.createdAt)}"`,
+    ].join(","));
+  });
+  const blob = new Blob([csvRows.join("\n")], {type:"text/csv;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `tour_spa_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+});
+
+// Clear all
+clearBtn.addEventListener("click", ()=>{
+  if(!rows.length) return;
+  if(confirm("Xóa toàn bộ dữ liệu?")){
+    rows = [];
+    saveRows();
+    applyFilter();
+  }
+});
+</script>
+</body>
+</html>
