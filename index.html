@@ -3,234 +3,806 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Quản lý tour spa cho kỹ thuật viên</title>
+<title>Spa Pro Manager — Demo</title>
+
+<!-- Google font + material icons -->
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
 <style>
-  :root{--radius:12px;--pad:14px;--gap:10px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
-  body{margin:0;background:#f6f7fb;color:#111}
-  header{padding:22px 20px;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.06);position:sticky;top:0;z-index:10}
-  h1{margin:0;font-size:20px}
-  .wrap{max-width:1100px;margin:20px auto;padding:0 16px}
-  form{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:var(--gap);background:#fff;padding:var(--pad);border-radius:var(--radius);box-shadow:0 2px 10px rgba(0,0,0,.05)}
-  input,select,button{padding:12px;border:1px solid #ddd;border-radius:10px;font-size:14px}
-  input:focus,select:focus{outline:none;border-color:#7a8cff;box-shadow:0 0 0 3px rgba(122,140,255,.15)}
-  button{border:none;cursor:pointer}
-  .btn-primary{background:#5865f2;color:#fff}
-  .btn-secondary{background:#eee}
-  .toolbar{display:flex;gap:8px;align-items:center;margin:14px 0}
-  .toolbar input{flex:1}
-  table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.05)}
-  th,td{padding:12px 10px;border-bottom:1px solid #f0f0f0;font-size:14px;text-align:left}
-  th{background:#fafbff;font-weight:600}
-  tr:last-child td{border-bottom:none}
-  .muted{color:#666;font-size:12px}
-  .pill{padding:4px 8px;border-radius:99px;background:#eef1ff;display:inline-block}
-  .row-actions{display:flex;gap:6px}
-  .empty{padding:22px;text-align:center;color:#777}
-  footer{margin:24px 0;color:#666}
+:root{
+  --bg:#f6f7fb; --card:#ffffff; --accent:#6a4ab4; --accent2:#b27cf0;
+  --muted:#6b7280; --success:#10b981; --danger:#ef4444; --radius:12px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Roboto,system-ui,-apple-system,Segoe UI,Arial;background:var(--bg);color:#0f172a}
+.app{display:flex;min-height:100vh}
+.sidebar{
+  width:250px;background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;padding:20px;display:flex;flex-direction:column;
+  gap:12px;box-shadow:6px 0 20px rgba(0,0,0,0.08)
+}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:48px;height:48px;border-radius:10px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-weight:700}
+.brand .title{font-size:17px;font-weight:700}
+.sidebar .desc{font-size:12px;opacity:0.9}
+.nav{margin-top:8px;display:flex;flex-direction:column;gap:6px}
+.nav button{
+  background:transparent;border:none;color:#fff;text-align:left;padding:10px;border-radius:10px;cursor:pointer;font-weight:500;display:flex;gap:10px;align-items:center
+}
+.nav button:hover{background:rgba(255,255,255,0.06)}
+.nav button.active{background:rgba(255,255,255,0.12);box-shadow:inset 0 0 0 1px rgba(255,255,255,0.04)}
+.sidebar .bottom{margin-top:auto;display:flex;flex-direction:column;gap:8px;font-size:13px}
+
+.main{flex:1;padding:18px 22px;overflow:auto}
+.header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.header .search{background:var(--card);padding:8px 12px;border-radius:10px;display:flex;gap:8px;align-items:center;box-shadow:0 6px 20px rgba(2,6,23,0.04)}
+.header input{border:0;outline:none;font-size:14px}
+
+.card{background:var(--card);border-radius:12px;padding:14px;box-shadow:0 6px 24px rgba(2,6,23,0.06);margin-bottom:12px}
+.grid{display:grid;gap:12px}
+.g-3{grid-template-columns:repeat(3,1fr)}
+.g-2{grid-template-columns:repeat(2,1fr)}
+.kpi{display:flex;gap:12px}
+.kpi .item{flex:1;background:linear-gradient(180deg,#fff,#fbfbff);padding:12px;border-radius:10px}
+
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px;border-bottom:1px solid #f1f5f9;text-align:left;font-size:14px}
+thead th{color:var(--muted);font-weight:700}
+
+.btn{padding:8px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:600}
+.btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff}
+.btn.ghost{background:transparent;border:1px solid #eef1fa;color:var(--muted)}
+.btn.warn{background:var(--accent2);color:#fff}
+.btn.danger{background:var(--danger);color:#fff}
+.small{padding:6px 8px;font-size:13px;border-radius:8px}
+
+/* modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.4);display:none;align-items:center;justify-content:center;z-index:2000}
+.modal{width:720px;max-width:96%;background:var(--card);padding:16px;border-radius:12px}
+.modal h3{margin:0 0 8px 0}
+.row{display:flex;gap:10px;margin-bottom:10px}
+.col{flex:1}
+.label{font-size:13px;color:var(--muted);margin-bottom:6px;display:block}
+.input,select,textarea{width:100%;padding:8px;border-radius:8px;border:1px solid #e6e9ef;font-size:14px}
+textarea{min-height:80px}
+
+/* login page full screen */
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#faf8ff,#f3f4f9)}
+.login-box{width:420px;background:var(--card);padding:20px;border-radius:12px;box-shadow:0 10px 40px rgba(2,6,23,0.08)}
+
+/* small */
+.muted{color:var(--muted)}
+.tiny{font-size:12px;color:var(--muted)}
+.right{text-align:right}
+
+/* responsive */
+@media(max-width:980px){
+  .sidebar{display:none}
+  .main{padding:12px}
+  .g-3,.g-2{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
-  <header>
-    <h1>Quản lý tour spa (kỹ thuật viên)</h1>
-    <div class="muted">Nhập nhanh: Tên KH • SĐT • Loại dịch vụ</div>
-  </header>
 
-  <div class="wrap">
-    <form id="entryForm" autocomplete="off">
-      <input id="name" placeholder="Tên khách hàng *" required />
-      <input id="phone" placeholder="Số điện thoại *" required />
-      <input id="service" placeholder="Loại dịch vụ *" required />
-      <button class="btn-primary" type="submit">Thêm</button>
-    </form>
-
-    <div class="toolbar">
-      <input id="search" placeholder="Tìm theo tên / SĐT / dịch vụ..." />
-      <button id="exportCsv" class="btn-secondary">Xuất CSV</button>
-      <button id="clearAll" class="btn-secondary" title="Xóa toàn bộ dữ liệu">Xóa tất cả</button>
+<!-- LOGIN / REGISTER (shown when no session) -->
+<div id="loginView" class="login-screen" style="display:none">
+  <div class="login-box">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:20px;font-weight:700">Spa Pro Manager</div>
+        <div class="tiny muted">Đăng nhập để vào hệ thống (demo offline)</div>
+      </div>
+      <div class="logo" style="width:44px;height:44px;border-radius:8px">SP</div>
     </div>
 
-    <table id="dataTable">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Tên KH</th>
-          <th>SĐT</th>
-          <th>Dịch vụ</th>
-          <th>Thời gian</th>
-          <th>Hành động</th>
-        </tr>
-      </thead>
-      <tbody id="tbody">
-        <tr class="empty"><td colspan="6">Chưa có dữ liệu</td></tr>
-      </tbody>
-    </table>
+    <div style="margin-top:14px">
+      <div id="loginForm">
+        <label class="label">Tên đăng nhập</label>
+        <input id="loginUser" class="input" placeholder="username">
+        <label class="label">Mật khẩu</label>
+        <input id="loginPass" type="password" class="input" placeholder="password">
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn primary" onclick="doLogin()">Đăng nhập</button>
+          <button class="btn ghost" onclick="showRegister()">Đăng ký</button>
+        </div>
+        <div class="tiny muted" style="margin-top:10px">Mặc định: <strong>admin/admin123</strong> (Admin) — <strong>tech1/tech123</strong> (KTV)</div>
+      </div>
 
-    <footer>
-      <div class="muted">Dữ liệu được lưu cục bộ trên trình duyệt của bạn (localStorage).</div>
-    </footer>
+      <div id="regForm" style="display:none">
+        <label class="label">Tên đăng nhập</label>
+        <input id="regUserInput" class="input" placeholder="username">
+        <label class="label">Mật khẩu</label>
+        <input id="regPassInput" type="password" class="input" placeholder="password">
+        <label class="label">Vai trò</label>
+        <select id="regRoleSelect" class="input"><option value="tech">Kỹ thuật viên</option><option value="admin">Admin</option></select>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn primary" onclick="doRegister()">Đăng ký</button>
+          <button class="btn ghost" onclick="showLogin()">Trở lại</button>
+        </div>
+      </div>
+    </div>
   </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="app" style="display:none">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" role="navigation">
+    <div class="brand">
+      <div class="logo">SP</div>
+      <div>
+        <div class="title">Spa Pro Manager</div>
+        <div class="desc tiny">Quản lý tour/ca — demo offline</div>
+      </div>
+    </div>
+
+    <nav class="nav" id="menu">
+      <button class="active" data-view="dashboard" onclick="switchView(event)"> <span class="material-icons">dashboard</span> Dashboard</button>
+      <button data-view="bookings" onclick="switchView(event)"> <span class="material-icons">event</span> Lịch hẹn</button>
+      <button data-view="customers" onclick="switchView(event)"> <span class="material-icons">people</span> Khách hàng</button>
+      <button data-view="services" onclick="switchView(event)"> <span class="material-icons">spa</span> Dịch vụ</button>
+      <button data-view="techs" onclick="switchView(event)"> <span class="material-icons">person</span> Kỹ thuật viên</button>
+      <button data-view="revenue" onclick="switchView(event)"> <span class="material-icons">attach_money</span> Doanh thu</button>
+      <button data-view="settings" onclick="switchView(event)"> <span class="material-icons">settings</span> Cài đặt</button>
+    </nav>
+
+    <div class="bottom">
+      <div class="tiny">Phiên bản: Demo 1.0</div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn ghost small" onclick="backup()">Sao lưu</button>
+        <label class="btn ghost small" style="cursor:pointer">Phục hồi <input id="fileRestore" type="file" accept="application/json" style="display:none" /></label>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn ghost small" onclick="logout()">Đăng xuất</button>
+        <button class="btn ghost small" id="themeBtn" onclick="toggleTheme()">🌓</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <div class="header">
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="search">
+          <span class="material-icons" style="color:var(--accent)">search</span>
+          <input id="globalSearch" placeholder="Tìm tên, SĐT, dịch vụ..." oninput="doGlobalSearch(this.value)" />
+        </div>
+        <div class="tiny muted">Xin chào, <strong id="userLabel">-</strong></div>
+      </div>
+      <div class="right tiny muted" id="roleLabel">—</div>
+    </div>
+
+    <!-- VIEWS: each is hidden by default except dashboard -->
+    <!-- Dashboard -->
+    <section id="view_dashboard" class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2>Dashboard</h2>
+        <div class="tiny muted">Dữ liệu mẫu được nạp sẵn</div>
+      </div>
+
+      <div class="grid g-3" style="margin-top:12px">
+        <div class="card kpi">
+          <div class="item">
+            <div class="tiny muted">Tổng khách hàng</div>
+            <div id="kpi_customers" style="font-weight:700;font-size:20px">0</div>
+          </div>
+          <div class="item">
+            <div class="tiny muted">Dịch vụ</div>
+            <div id="kpi_services" style="font-weight:700;font-size:20px">0</div>
+          </div>
+          <div class="item">
+            <div class="tiny muted">Kỹ thuật viên</div>
+            <div id="kpi_techs" style="font-weight:700;font-size:20px">0</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Tổng quan lịch hôm nay</h3>
+          <div id="todayBookings" class="tiny muted">Không có lịch hôm nay</div>
+        </div>
+
+        <div class="card">
+          <h3>Phím nhanh</h3>
+          <div style="display:flex;gap:8px">
+            <button class="btn primary" onclick="showAddBooking()">+ Tạo lịch</button>
+            <button class="btn ghost" onclick="showAddCustomer()">+ Thêm KH</button>
+            <button class="btn ghost" onclick="showAddService()">+ Thêm DV</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bookings -->
+    <section id="view_bookings" class="card" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2>Lịch hẹn</h2>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="date" id="bookFilterDate" class="input tiny" onchange="renderBookings()" />
+          <select id="bookFilterTech" class="input tiny" onchange="renderBookings()"><option value="all">Tất cả KTV</option></select>
+          <button class="btn primary" onclick="showAddBooking()">+ Tạo lịch</button>
+          <button class="btn ghost" onclick="exportBookings()">Xuất CSV</button>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead><tr><th>Ngày</th><th>Giờ</th><th>Khách</th><th>SĐT</th><th>Dịch vụ</th><th>KTV</th><th>Giá</th><th>Trạng thái</th><th>Hành động</th></tr></thead>
+          <tbody id="tb_bookings"><tr><td colspan="9" class="muted tiny">Không có lịch</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Customers -->
+    <section id="view_customers" class="card" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2>Khách hàng</h2>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="cust_q" class="input tiny" placeholder="Tìm khách..." oninput="renderCustomers()" />
+          <button class="btn primary" onclick="showAddCustomer()">+ Thêm khách</button>
+          <button class="btn ghost" onclick="exportCustomers()">Xuất CSV</button>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead><tr><th>Tên</th><th>SĐT</th><th>Lần đến</th><th>Ghi chú</th><th>Hành động</th></tr></thead>
+          <tbody id="tb_customers"><tr><td colspan="5" class="muted tiny">Chưa có</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Services -->
+    <section id="view_services" class="card" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2>Dịch vụ</h2>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="svc_q" class="input tiny" placeholder="Tìm dịch vụ..." oninput="renderServices()" />
+          <button class="btn primary" onclick="showAddService()">+ Thêm dịch vụ</button>
+          <button class="btn ghost" onclick="exportServices()">Xuất CSV</button>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead><tr><th>Tên dịch vụ</th><th>Giá (₫)</th><th>Thời lượng (phút)</th><th>Hành động</th></tr></thead>
+          <tbody id="tb_services"><tr><td colspan="4" class="muted tiny">Chưa có</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Techs -->
+    <section id="view_techs" class="card" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2>Kỹ thuật viên</h2>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="tech_q" class="input tiny" placeholder="Tìm KTV..." oninput="renderTechs()" />
+          <button class="btn primary" onclick="showAddTech()">+ Thêm KTV</button>
+          <button class="btn ghost" onclick="exportTechs()">Xuất CSV</button>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead><tr><th>Tên</th><th>Phone</th><th>% Hoa hồng</th><th>Trạng thái</th><th>Hành động</th></tr></thead>
+          <tbody id="tb_techs"><tr><td colspan="5" class="muted tiny">Chưa có</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Revenue -->
+    <section id="view_revenue" class="card" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2>Doanh thu & Hoa hồng</h2>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="month" id="rev_month" class="input tiny" />
+          <button class="btn ghost" onclick="renderRevenue()">Lấy báo cáo</button>
+          <button class="btn ghost" onclick="exportRevenue()">Xuất CSV</button>
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <div id="rev_table" class="table-wrap"></div>
+      </div>
+    </section>
+
+    <!-- Settings -->
+    <section id="view_settings" class="card" style="display:none">
+      <h2>Cài đặt</h2>
+      <div class="grid g-2" style="margin-top:12px">
+        <div class="card">
+          <label class="label">Tên Spa</label>
+          <input id="spa_name" class="input" />
+          <label class="label">% hoa hồng mặc định</label>
+          <input id="spa_comm" type="number" class="input" min="0" max="100" />
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <button class="btn primary" onclick="saveSettings()">Lưu</button>
+            <button class="btn danger" onclick="resetData()">Xóa toàn bộ (về mặc định)</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Quản lý tài khoản</h3>
+          <label class="label">Đăng ký user mới</label>
+          <input id="new_user" class="input" placeholder="username" />
+          <input id="new_pass" type="password" class="input" placeholder="password" />
+          <select id="new_role" class="input">
+            <option value="tech">Kỹ thuật viên</option>
+            <option value="admin">Admin</option>
+          </select>
+          <div style="margin-top:8px"><button class="btn primary" onclick="registerUser()">Đăng ký</button></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- MODAL BACKDROP -->
+<div id="modalBackdrop" class="modal-backdrop">
+  <div class="modal" id="modalInner"></div>
+</div>
 
 <script>
-const LS_KEY = "spaTourRows_v1";
+/* ---------------------------
+  Single-file Spa Pro Manager
+  - Demo offline: saves to localStorage
+  - Basic auth: local users (base64 password)
+---------------------------- */
 
-const $ = (sel) => document.querySelector(sel);
-const form = $("#entryForm");
-const nameEl = $("#name");
-const phoneEl = $("#phone");
-const serviceEl = $("#service");
-const searchEl = $("#search");
-const tbody = $("#tbody");
-const exportBtn = $("#exportCsv");
-const clearBtn = $("#clearAll");
+const LS_KEY = 'SPA_PRO_DEMO_V1';
+const SESSION_KEY = 'SPA_PRO_SESSION_V1';
 
-let rows = loadRows();
-render(rows);
+/* Default sample data */
+const DEFAULT = {
+  store:{name:'Spa Pro', defaultCommission:32},
+  users:[
+    {id:uid(), username:'admin', password:btoa('admin123'), role:'admin', name:'Admin'},
+    {id:uid(), username:'tech1', password:btoa('tech123'), role:'tech', name:'KTV Lan'}
+  ],
+  customers:[
+    {id:uid(), name:'Chị Hương', phone:'0901234567', visits:2, note:'Da nhạy cảm'}
+  ],
+  services:[
+    {id:uid(), name:"Massage Body 60'", price:400000, duration:60},
+    {id:uid(), name:"Facial 45'", price:350000, duration:45},
+    {id:uid(), name:"Foot 30'", price:200000, duration:30}
+  ],
+  techs:[
+    {id:uid(), name:'Lan', phone:'0901999888', rate:35, active:true},
+    {id:uid(), name:'Hà', phone:'0988555666', rate:30, active:true}
+  ],
+  bookings: [
+    // sample: none initially
+  ],
+  createdAt: new Date().toISOString()
+};
 
-// Helpers
-function loadRows(){
+let state = loadState();
+let session = loadSession();
+
+/* ---------- init UI references ---------- */
+const loginView = document.getElementById('loginView');
+const appView = document.getElementById('app');
+const userLabel = document.getElementById('userLabel');
+const roleLabel = document.getElementById('roleLabel');
+const menuButtons = document.querySelectorAll('.nav button');
+
+/* ---------- util ---------- */
+function uid(){ return 'id_'+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(4); }
+function fmtMoney(n){ return new Intl.NumberFormat('vi-VN',{style:'currency',currency:'VND',maximumFractionDigits:0}).format(n||0); }
+function today(){ const d=new Date(); const tz=d.getTimezoneOffset(); const l=new Date(d.getTime()-tz*60000); return l.toISOString().slice(0,10); }
+function timeToMin(hm){ if(!hm) return 0; const [h,m]=hm.split(':').map(Number); return h*60+m; }
+
+/* ---------- storage ---------- */
+function loadState(){
   try{
     const raw = localStorage.getItem(LS_KEY);
-    return raw ? JSON.parse(raw) : [];
-  }catch(e){ return []; }
+    if(!raw){ localStorage.setItem(LS_KEY, JSON.stringify(DEFAULT)); return JSON.parse(JSON.stringify(DEFAULT)); }
+    return JSON.parse(raw);
+  }catch(e){ localStorage.setItem(LS_KEY, JSON.stringify(DEFAULT)); return JSON.parse(JSON.stringify(DEFAULT)); }
 }
-function saveRows(){ localStorage.setItem(LS_KEY, JSON.stringify(rows)); }
-function nowISO(){ return new Date().toISOString(); }
-function formatTime(iso){
-  const d = new Date(iso);
-  const dd = String(d.getDate()).padStart(2,'0');
-  const mm = String(d.getMonth()+1).padStart(2,'0');
-  const yyyy = d.getFullYear();
-  const hh = String(d.getHours()).padStart(2,'0');
-  const mi = String(d.getMinutes()).padStart(2,'0');
-  return `${dd}/${mm}/${yyyy} ${hh}:${mi}`;
+function saveState(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+function loadSession(){ try{ const s=localStorage.getItem(SESSION_KEY); return s?JSON.parse(s):null;}catch(e){return null;} }
+function saveSession(){ localStorage.setItem(SESSION_KEY, JSON.stringify(session)); }
+function clearSession(){ localStorage.removeItem(SESSION_KEY); session=null; }
+
+/* ---------- auth ---------- */
+function showRegister(){ document.getElementById('loginForm').style.display='none'; document.getElementById('regForm').style.display='block'; }
+function showLogin(){ document.getElementById('loginForm').style.display='block'; document.getElementById('regForm').style.display='none'; }
+function doRegister(){
+  const u = document.getElementById('regUserInput').value.trim();
+  const p = document.getElementById('regPassInput').value;
+  const role = document.getElementById('regRoleSelect').value;
+  if(!u||!p) return alert('Nhập username & password');
+  if(state.users.some(x=>x.username===u)) return alert('Username đã tồn tại');
+  state.users.push({id:uid(), username:u, password:btoa(p), role, name:u});
+  saveState();
+  alert('Đăng ký thành công. Vui lòng đăng nhập.');
+  showLogin();
 }
-function validatePhone(p){
-  // Cho phép 9–12 chữ số, bỏ khoảng trắng và dấu
-  const cleaned = (p||"").replace(/[^\d]/g,"");
-  return cleaned.length>=9 && cleaned.length<=12;
+function doLogin(){
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  if(!u||!p) return alert('Nhập username & password');
+  const found = state.users.find(x=>x.username===u && x.password===btoa(p));
+  if(!found) return alert('Sai thông tin đăng nhập');
+  session = {userId:found.id, username:found.username, role:found.role, name:found.name||found.username};
+  saveSession();
+  enterApp();
 }
-function render(list){
-  tbody.innerHTML = "";
-  if(!list.length){
-    const tr = document.createElement("tr");
-    tr.className = "empty";
-    tr.innerHTML = `<td colspan="6">Chưa có dữ liệu</td>`;
-    tbody.appendChild(tr);
-    return;
+function logout(){ if(confirm('Đăng xuất?')){ clearSession(); location.reload(); } }
+
+/* ---------- init / enter ---------- */
+function enterApp(){
+  loginView.style.display='none'; appView.style.display='flex';
+  userLabel.textContent = session.name || session.username;
+  roleLabel.textContent = session.role==='admin' ? 'Admin' : 'Kỹ thuật viên';
+  // role control: hide admin-only screens for tech
+  if(session.role==='tech'){
+    document.querySelector('[data-view="services"]').style.display='none';
+    document.querySelector('[data-view="techs"]').style.display='none';
+    document.querySelector('[data-view="settings"]').style.display='none';
+    document.querySelector('[data-view="revenue"]').style.display='none';
   }
-  list.forEach((r, idx)=>{
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${idx+1}</td>
-      <td>${escapeHtml(r.name)}</td>
-      <td>${escapeHtml(r.phone)}</td>
-      <td><span class="pill">${escapeHtml(r.service)}</span></td>
-      <td class="muted">${formatTime(r.createdAt)}</td>
-      <td class="row-actions">
-        <button data-id="${r.id}" data-act="edit">Sửa</button>
-        <button data-id="${r.id}" data-act="del">Xóa</button>
+  // default view
+  activateMenu('dashboard');
+  renderAll();
+}
+
+/* ---------- UI switching ---------- */
+function switchView(e){
+  const btn = (e.currentTarget);
+  const view = btn.dataset.view;
+  activateMenuBtn(btn);
+  showView(view);
+}
+function activateMenuBtn(btn){
+  menuButtons.forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function activateMenu(view){
+  const btn = Array.from(menuButtons).find(b=>b.dataset.view===view);
+  if(btn) activateMenuBtn(btn);
+  showView(view);
+}
+function showView(view){
+  // hide all view sections
+  const sections = document.querySelectorAll('main section');
+  sections.forEach(s=>s.style.display='none');
+  const id = 'view_'+view;
+  const el = document.getElementById(id);
+  if(el) el.style.display='block';
+  // render as needed
+  if(view==='dashboard') renderDashboard();
+  if(view==='bookings') renderBookings();
+  if(view==='customers') renderCustomers();
+  if(view==='services') renderServices();
+  if(view==='techs') renderTechs();
+  if(view==='revenue') renderRevenue();
+  if(view==='settings') renderSettings();
+}
+
+/* ---------- rendering ---------- */
+function renderAll(){
+  renderDashboard(); renderBookings(); renderCustomers(); renderServices(); renderTechs(); renderRevenue(); renderSettings();
+}
+function renderDashboard(){
+  document.getElementById('kpi_customers').textContent = state.customers.length;
+  document.getElementById('kpi_services').textContent = state.services.length;
+  document.getElementById('kpi_techs').textContent = state.techs.length;
+  // today bookings
+  const d = today();
+  const list = state.bookings.filter(b=>b.date===d).sort((a,b)=>a.time.localeCompare(b.time));
+  const tdiv = document.getElementById('todayBookings');
+  if(!list.length) tdiv.innerHTML = '<div class="tiny muted">Không có lịch hôm nay</div>';
+  else tdiv.innerHTML = list.map(b=> {
+    const svc = state.services.find(s=>s.id===b.serviceId); const tech = state.techs.find(t=>t.id===b.techId);
+    return `<div style="margin-bottom:6px"><strong>${b.time}</strong> — ${escapeHtml(b.customerName)} • ${escapeHtml(svc?svc.name:'')} • ${escapeHtml(tech?tech.name:'')} <span class="tiny muted">[${b.status}]</span></div>`;
+  }).join('');
+}
+
+function renderBookings(){
+  const dateEl = document.getElementById('bookFilterDate');
+  if(!dateEl.value) dateEl.value = today();
+  const date = dateEl.value;
+  // populate tech filter
+  const techSel = document.getElementById('bookFilterTech'); techSel.innerHTML = '<option value="all">Tất cả KTV</option>';
+  state.techs.forEach(t=> techSel.insertAdjacentHTML('beforeend', `<option value="${t.id}">${escapeHtml(t.name)}</option>`));
+  // rows
+  const tbody = document.getElementById('tb_bookings');
+  const list = state.bookings.filter(b => b.date===date);
+  if(!list.length){ tbody.innerHTML = '<tr><td colspan="9" class="muted tiny">Không có lịch</td></tr>'; return; }
+  tbody.innerHTML = list.sort((a,b)=>a.time.localeCompare(b.time)).map(b=>{
+    const svc = state.services.find(s=>s.id===b.serviceId); const tech = state.techs.find(t=>t.id===b.techId);
+    return `<tr>
+      <td>${b.date}</td>
+      <td>${b.time}</td>
+      <td>${escapeHtml(b.customerName)}</td>
+      <td>${escapeHtml(b.phone)}</td>
+      <td>${escapeHtml(svc?svc.name:'')}</td>
+      <td>${escapeHtml(tech?tech.name:'')}</td>
+      <td>${svc?fmtMoney(svc.price):'-'}</td>
+      <td>${escapeHtml(b.status)}</td>
+      <td>
+        <button class="btn small" onclick="editBooking('${b.id}')">Sửa</button>
+        <button class="btn small primary" onclick="completeBooking('${b.id}')">Hoàn thành</button>
+        <button class="btn small danger" onclick="deleteBooking('${b.id}')">Xóa</button>
       </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
-
-// Add
-form.addEventListener("submit", (e)=>{
-  e.preventDefault();
-  const name = nameEl.value.trim();
-  const phone = phoneEl.value.trim();
-  const service = serviceEl.value.trim();
-
-  if(!name || !phone || !service){ alert("Vui lòng nhập đầy đủ Tên, SĐT và Loại dịch vụ."); return; }
-  if(!validatePhone(phone)){ alert("Số điện thoại chưa đúng định dạng (9–12 chữ số)."); return; }
-
-  const row = { id: crypto.randomUUID(), name, phone, service, createdAt: nowISO() };
-  rows.unshift(row);
-  saveRows();
-  form.reset();
-  nameEl.focus();
-  applyFilter();
-});
-
-// Edit / Delete
-tbody.addEventListener("click", (e)=>{
-  const btn = e.target.closest("button");
-  if(!btn) return;
-  const id = btn.getAttribute("data-id");
-  const act = btn.getAttribute("data-act");
-  const idx = rows.findIndex(r=>r.id===id);
-  if(idx<0) return;
-
-  if(act==="del"){
-    if(confirm("Xóa mục này?")){
-      rows.splice(idx,1);
-      saveRows();
-      applyFilter();
-    }
-  }else if(act==="edit"){
-    const curr = rows[idx];
-    const name = prompt("Tên KH:", curr.name); if(name===null) return;
-    const phone = prompt("SĐT:", curr.phone); if(phone===null) return;
-    const service = prompt("Loại dịch vụ:", curr.service); if(service===null) return;
-
-    if(!name.trim() || !phone.trim() || !service.trim()){ alert("Không được để trống."); return; }
-    if(!validatePhone(phone)){ alert("Số điện thoại chưa đúng định dạng."); return; }
-
-    rows[idx] = {...curr, name:name.trim(), phone:phone.trim(), service:service.trim()};
-    saveRows();
-    applyFilter();
-  }
-});
-
-// Search
-searchEl.addEventListener("input", applyFilter);
-function applyFilter(){
-  const q = searchEl.value.trim().toLowerCase();
-  if(!q){ render(rows); return; }
-  const filtered = rows.filter(r =>
-    r.name.toLowerCase().includes(q) ||
-    r.phone.toLowerCase().includes(q) ||
-    r.service.toLowerCase().includes(q)
-  );
-  render(filtered);
+    </tr>`;
+  }).join('');
 }
 
-// Export CSV
-exportBtn.addEventListener("click", ()=>{
-  if(!rows.length){ alert("Chưa có dữ liệu để xuất."); return; }
-  const header = ["STT","Tên KH","SĐT","Loại dịch vụ","Thời gian"];
-  const csvRows = [header.join(",")];
-  rows.forEach((r,i)=>{
-    csvRows.push([
-      i+1,
-      `"${r.name.replace(/"/g,'""')}"`,
-      `"${r.phone.replace(/"/g,'""')}"`,
-      `"${r.service.replace(/"/g,'""')}"`,
-      `"${formatTime(r.createdAt)}"`,
-    ].join(","));
-  });
-  const blob = new Blob([csvRows.join("\n")], {type:"text/csv;charset=utf-8"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `tour_spa_${new Date().toISOString().slice(0,10)}.csv`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-});
+function renderCustomers(){
+  const q = (document.getElementById('cust_q').value||'').toLowerCase();
+  const tbody = document.getElementById('tb_customers');
+  const list = state.customers.filter(c=> (c.name||'').toLowerCase().includes(q) || (c.phone||'').includes(q));
+  if(!list.length) { tbody.innerHTML = '<tr><td colspan="5" class="muted tiny">Chưa có</td></tr>'; return; }
+  tbody.innerHTML = list.map(c=>`<tr>
+    <td>${escapeHtml(c.name)}</td>
+    <td>${escapeHtml(c.phone)}</td>
+    <td>${c.visits||0}</td>
+    <td>${escapeHtml(c.note||'')}</td>
+    <td>
+      <button class="btn small" onclick="editCustomer('${c.id}')">Sửa</button>
+      <button class="btn small danger" onclick="deleteCustomer('${c.id}')">Xóa</button>
+    </td>
+  </tr>`).join('');
+}
 
-// Clear all
-clearBtn.addEventListener("click", ()=>{
-  if(!rows.length) return;
-  if(confirm("Xóa toàn bộ dữ liệu?")){
-    rows = [];
-    saveRows();
-    applyFilter();
+function renderServices(){
+  const q = (document.getElementById('svc_q').value||'').toLowerCase();
+  const tbody = document.getElementById('tb_services');
+  const list = state.services.filter(s=> (s.name||'').toLowerCase().includes(q));
+  if(!list.length){ tbody.innerHTML = '<tr><td colspan="4" class="muted tiny">Chưa có</td></tr>'; return; }
+  tbody.innerHTML = list.map(s=>`<tr>
+    <td>${escapeHtml(s.name)}</td><td>${fmtMoney(s.price)}</td><td>${s.duration}</td>
+    <td>
+      <button class="btn small" onclick="editService('${s.id}')">Sửa</button>
+      <button class="btn small danger" onclick="deleteService('${s.id}')">Xóa</button>
+    </td>
+  </tr>`).join('');
+}
+
+function renderTechs(){
+  const q = (document.getElementById('tech_q').value||'').toLowerCase();
+  const tbody = document.getElementById('tb_techs');
+  const list = state.techs.filter(t=> (t.name||'').toLowerCase().includes(q) || (t.phone||'').includes(q));
+  if(!list.length){ tbody.innerHTML = '<tr><td colspan="5" class="muted tiny">Chưa có</td></tr>'; return; }
+  tbody.innerHTML = list.map(t=>`<tr>
+    <td>${escapeHtml(t.name)}</td><td>${escapeHtml(t.phone)}</td><td>${t.rate}%</td><td>${t.active?'Đang làm':'Tạm nghỉ'}</td>
+    <td>
+      <button class="btn small" onclick="editTech('${t.id}')">Sửa</button>
+      <button class="btn small danger" onclick="deleteTech('${t.id}')">Xóa</button>
+    </td>
+  </tr>`).join('');
+}
+
+function renderRevenue(){
+  const month = document.getElementById('rev_month').value || (new Date()).toISOString().slice(0,7);
+  document.getElementById('rev_month').value = month;
+  const inMonth = state.bookings.filter(b=> b.status==='done' && b.date.startsWith(month));
+  if(!inMonth.length){ document.getElementById('rev_table').innerHTML = '<div class="muted tiny">Không có dữ liệu</div>'; return; }
+  const map = {};
+  inMonth.forEach(b=>{
+    const s = state.services.find(x=>x.id===b.serviceId); const price = s? s.price:0;
+    const tech = state.techs.find(t=>t.id===b.techId);
+    const key = tech? tech.id: 'unknown';
+    if(!map[key]) map[key] = {name:tech?tech.name:'-', jobs:0, revenue:0, rate: tech?tech.rate: state.store.defaultCommission};
+    map[key].jobs += 1; map[key].revenue += price;
+  });
+  const rows = Object.values(map).map(r=> ({...r, commission: Math.round(r.revenue * (r.rate/100))}) );
+  let html = `<table><thead><tr><th>KTV</th><th>Số ca</th><th>Doanh thu</th><th>% Hoa hồng</th><th>Hoa hồng</th></tr></thead><tbody>`;
+  html += rows.map(r=>`<tr><td>${escapeHtml(r.name)}</td><td>${r.jobs}</td><td>${fmtMoney(r.revenue)}</td><td>${Math.round(r.rate)}%</td><td>${fmtMoney(r.commission)}</td></tr>`).join('');
+  html += '</tbody></table>';
+  document.getElementById('rev_table').innerHTML = html;
+}
+
+/* ---------- modal helpers ---------- */
+function showModal(innerHtml){
+  document.getElementById('modalInner').innerHTML = innerHtml;
+  document.getElementById('modalBackdrop').style.display = 'flex';
+}
+function closeModal(){ document.getElementById('modalBackdrop').style.display = 'none'; }
+
+/* ---------- CRUD: Customers ---------- */
+function showAddCustomer(){
+  showModal(`<h3>Thêm khách hàng</h3>
+    <div class="row"><div class="col"><label class="label">Tên</label><input id="m_cust_name" class="input"></div><div style="width:160px"><label class="label">SĐT</label><input id="m_cust_phone" class="input"></div></div>
+    <div class="row"><div class="col"><label class="label">Ghi chú</label><input id="m_cust_note" class="input"></div></div>
+    <div style="text-align:right"><button class="btn ghost" onclick="closeModal()">Hủy</button> <button class="btn primary" onclick="addCustomer()">Thêm</button></div>`);
+}
+function addCustomer(){
+  const name = document.getElementById('m_cust_name').value.trim();
+  const phone = document.getElementById('m_cust_phone').value.trim();
+  const note = document.getElementById('m_cust_note').value.trim();
+  if(!name || !phone) return alert('Nhập tên & SĐT');
+  state.customers.push({id:uid(), name, phone, visits:0, note});
+  saveState(); closeModal(); renderCustomers(); renderDashboard();
+}
+function editCustomer(id){
+  const c = state.customers.find(x=>x.id===id);
+  if(!c) return alert('Không tìm thấy');
+  showModal(`<h3>Sửa khách</h3>
+    <div class="row"><div class="col"><label class="label">Tên</label><input id="m_cust_name" class="input" value="${escapeAttr(c.name)}"></div><div style="width:160px"><label class="label">SĐT</label><input id="m_cust_phone" class="input" value="${escapeAttr(c.phone)}"></div></div>
+    <div class="row"><div class="col"><label class="label">Ghi chú</label><input id="m_cust_note" class="input" value="${escapeAttr(c.note||'')}"></div></div>
+    <div style="text-align:right"><button class="btn ghost" onclick="closeModal()">Hủy</button> <button class="btn primary" onclick="saveEditCustomer('${c.id}')">Lưu</button></div>`);
+}
+function saveEditCustomer(id){
+  const name = document.getElementById('m_cust_name').value.trim();
+  const phone = document.getElementById('m_cust_phone').value.trim();
+  const note = document.getElementById('m_cust_note').value.trim();
+  if(!name || !phone) return alert('Nhập tên & SĐT');
+  const idx = state.customers.findIndex(x=>x.id===id);
+  state.customers[idx] = {...state.customers[idx], name, phone, note};
+  saveState(); closeModal(); renderCustomers();
+}
+function deleteCustomer(id){ if(!confirm('Xóa khách này?')) return; state.customers = state.customers.filter(x=>x.id!==id); saveState(); renderCustomers(); }
+
+/* ---------- Services ---------- */
+function showAddService(){
+  showModal(`<h3>Thêm dịch vụ</h3>
+    <div class="row"><div class="col"><label class="label">Tên dịch vụ</label><input id="m_svc_name" class="input"></div><div style="width:140px"><label class="label">Giá (VND)</label><input id="m_svc_price" class="input" type="number" value="0"></div><div style="width:120px"><label class="label">Thời lượng (phút)</label><input id="m_svc_dur" class="input" type="number" value="60"></div></div>
+    <div style="text-align:right"><button class="btn ghost" onclick="closeModal()">Hủy</button> <button class="btn primary" onclick="addService()">Thêm</button></div>`);
+}
+function addService(){ const name=document.getElementById('m_svc_name').value.trim(); const price=Number(document.getElementById('m_svc_price').value)||0; const dur=Number(document.getElementById('m_svc_dur').value)||60; if(!name) return alert('Nhập tên'); state.services.push({id:uid(), name, price, duration:dur}); saveState(); closeModal(); renderServices(); renderBookings(); }
+function editService(id){
+  const s = state.services.find(x=>x.id===id); if(!s) return;
+  showModal(`<h3>Sửa dịch vụ</h3><div class="row"><div class="col"><label class="label">Tên</label><input id="m_svc_name" class="input" value="${escapeAttr(s.name)}"></div><div style="width:140px"><label class="label">Giá</label><input id="m_svc_price" class="input" type="number" value="${s.price}"></div><div style="width:120px"><label class="label">Thời lượng</label><input id="m_svc_dur" class="input" type="number" value="${s.duration}"></div></div><div style="text-align:right"><button class="btn ghost" onclick="closeModal()">Hủy</button> <button class="btn primary" onclick="saveEditService('${s.id}')">Lưu</button></div>`);
+}
+function saveEditService(id){ const name=document.getElementById('m_svc_name').value.trim(); const price=Number(document.getElementById('m_svc_price').value)||0; const dur=Number(document.getElementById('m_svc_dur').value)||60; if(!name) return alert('Nhập tên'); const idx=state.services.findIndex(x=>x.id===id); state.services[idx]={...state.services[idx], name, price, duration:dur}; saveState(); closeModal(); renderServices(); renderBookings();}
+function deleteService(id){ if(!confirm('Xóa dịch vụ?')) return; state.services = state.services.filter(x=>x.id!==id); saveState(); renderServices(); }
+
+/* ---------- Techs ---------- */
+function showAddTech(){ showModal(`<h3>Thêm KTV</h3><div class="row"><div class="col"><label class="label">Tên</label><input id="m_tech_name" class="input"></div><div style="width:140px"><label class="label">Phone</label><input id="m_tech_phone" class="input"></div><div style="width:120px"><label class="label">% hoa hồng</label><input id="m_tech_rate" class="input" type="number" value="${state.store.defaultCommission}"></div></div><div style="text-align:right"><button class="btn ghost" onclick="closeModal()">Hủy</button><button class="btn primary" onclick="addTech()">Thêm</button></div>`); }
+function addTech(){ const name=document.getElementById('m_tech_name').value.trim(); const phone=document.getElementById('m_tech_phone').value.trim(); const rate=Number(document.getElementById('m_tech_rate').value)||state.store.defaultCommission; if(!name) return alert('Nhập tên'); state.techs.push({id:uid(), name, phone, rate, active:true}); saveState(); closeModal(); renderTechs(); populateTechFilter(); }
+function editTech(id){ const t = state.techs.find(x=>x.id===id); if(!t) return; showModal(`<h3>Sửa KTV</h3><div class="row"><div class="col"><label class="label">Tên</label><input id="m_tech_name" class="input" value="${escapeAttr(t.name)}"></div><div style="width:140px"><label class="label">Phone</label><input id="m_tech_phone" class="input" value="${escapeAttr(t.phone)}"></div><div style="width:120px"><label class="label">% hoa hồng</label><input id="m_tech_rate" class="input" type="number" value="${t.rate}"></div></div><div style="margin-bottom:6px"><label><input id="m_tech_active" type="checkbox" ${t.active? 'checked':''}/> Đang làm</label></div><div style="text-align:right"><button class="btn ghost" onclick="closeModal()">Hủy</button><button class="btn primary" onclick="saveEditTech('${t.id}')">Lưu</button></div>`); }
+function saveEditTech(id){ const name=document.getElementById('m_tech_name').value.trim(); const phone=document.getElementById('m_tech_phone').value.trim(); const rate=Number(document.getElementById('m_tech_rate').value)||state.store.defaultCommission; const active=document.getElementById('m_tech_active').checked; const idx=state.techs.findIndex(x=>x.id===id); state.techs[idx]={...state.techs[idx], name, phone, rate, active}; saveState(); closeModal(); renderTechs(); populateTechFilter(); }
+function deleteTech(id){ if(!confirm('Xóa KTV?')) return; state.techs = state.techs.filter(x=>x.id!==id); saveState(); renderTechs(); populateTechFilter(); }
+
+/* ---------- Bookings ---------- */
+function showAddBooking(){
+  // build selects
+  const custOpts = state.customers.map(c=>`<option value="${c.id}">${escapeAttr(c.name)} — ${escapeAttr(c.phone)}</option>`).join('') + `<option value="_new">+ Khách mới</option>`;
+  const svcOpts = state.services.map(s=>`<option value="${s.id}">${escapeAttr(s.name)} — ${fmtMoney(s.price)}</option>`).join('');
+  const techOpts = state.techs.map(t=>`<option value="${t.id}">${escapeAttr(t.name)}</option>`).join('');
+  showModal(`<h3>Tạo lịch hẹn</h3>
+    <div class="row"><div class="col"><label class="label">Khách</label><select id="m_book_cust" class="input">${custOpts}</select></div><div style="width:140px"><label class="label">Ngày</label><input id="m_book_date" type="date" class="input" value="${today()}"></div></div>
+    <div class="row"><div class="col"><label class="label">Dịch vụ</label><select id="m_book_svc" class="input">${svcOpts}</select></div><div class="col"><label class="label">KTV</label><select id="m_book_tech" class="input">${techOpts}</select></div><div style="width:120px"><label class="label">Giờ</label><input id="m_book_time" type="time" class="input" value="10:00"></div></div>
+    <div class="row"><div class="col"><label class="label">Số điện thoại (nếu khách mới)</label><input id="m_book_phone" class="input"></div><div style="width:160px"><label class="label">Trạng thái</label><select id="m_book_status" class="input"><option value="scheduled">Đã đặt</option><option value="inprogress">Đang làm</option><option value="done">Hoàn thành</option><option value="canceled">Huỷ</option></select></div></div>
+    <div style="text-align:right"><button class="btn ghost" onclick="closeModal()">Hủy</button><button class="btn primary" onclick="addBooking()">Tạo</button></div>`);
+}
+function addBooking(){
+  const cust = document.getElementById('m_book_cust').value;
+  const date = document.getElementById('m_book_date').value;
+  const svcId = document.getElementById('m_book_svc').value;
+  const techId = document.getElementById('m_book_tech').value;
+  const time = document.getElementById('m_book_time').value;
+  const phone = document.getElementById('m_book_phone').value.trim();
+  const status = document.getElementById('m_book_status').value;
+  if(!date || !svcId || !techId || !time) return alert('Thiếu thông tin');
+  let customerId = cust;
+  if(cust === '_new'){
+    if(!phone) return alert('Nhập SĐT cho khách mới'); 
+    const name = prompt('Tên khách mới:'); if(!name) return alert('Hủy vì chưa nhập tên');
+    const newC = {id:uid(), name:name.trim(), phone, visits:0, note:''}; state.customers.push(newC); customerId = newC.id;
   }
-});
+  // conflict check
+  const svc = state.services.find(s=>s.id===svcId); const dur = svc?svc.duration:60;
+  const sMin = timeToMin(time), eMin = sMin + dur;
+  const conflict = state.bookings.some(b=> b.date===date && b.techId===techId && !( (timeToMin(b.time)+ (state.services.find(x=>x.id===b.serviceId)?.duration||60)) <= sMin || eMin <= timeToMin(b.time) ) );
+  if(conflict && !confirm('Lịch có thể trùng với ca khác của KTV. Tiếp tục?')) return;
+  const book = { id:uid(), date, time, serviceId:svcId, techId, customerId, customerName: state.customers.find(c=>c.id===customerId).name, phone: phone || state.customers.find(c=>c.id===customerId).phone, status, paid: status==='done', note:''};
+  state.bookings.push(book);
+  saveState(); closeModal(); renderBookings(); renderCustomers(); renderDashboard();
+}
+function editBooking(id){
+  const b = state.bookings.find(x=>x.id===id); if(!b) return alert('Không tìm thấy');
+  // build selects with preselects
+  const custOpts = state.customers.map(c=>`<option value="${c.id}" ${c.id===b.customerId?'selected':''}>${escapeAttr(c.name)} — ${escapeAttr(c.phone)}</option>`).join('') + `<option value="_new">+ Khách mới</option>`;
+  const svcOpts = state.services.map(s=>`<option value="${s.id}" ${s.id===b.serviceId?'selected':''}>${escapeAttr(s.name)} — ${fmtMoney(s.price)}</option>`).join('');
+  const techOpts = state.techs.map(t=>`<option value="${t.id}" ${t.id===b.techId?'selected':''}>${escapeAttr(t.name)}</option>`).join('');
+  showModal(`<h3>Sửa lịch</h3>
+    <div class="row"><div class="col"><label class="label">Khách</label><select id="m_book_cust">${custOpts}</select></div><div style="width:140px"><label class="label">Ngày</label><input id="m_book_date" type="date" class="input" value="${b.date}"></div></div>
+    <div class="row"><div class="col"><label class="label">Dịch vụ</label><select id="m_book_svc">${svcOpts}</select></div><div class="col"><label class="label">KTV</label><select id="m_book_tech">${techOpts}</select></div><div style="width:120px"><label class="label">Giờ</label><input id="m_book_time" type="time" class="input" value="${b.time}"></div></div>
+    <div class="row"><div class="col"><label class="label">Phone</label><input id="m_book_phone" class="input" value="${escapeAttr(b.phone||'')}"></div><div style="width:160px"><label class="label">Trạng thái</label><select id="m_book_status" class="input"><option value="scheduled">Đã đặt</option><option value="inprogress">Đang làm</option><option value="done">Hoàn thành</option><option value="canceled">Huỷ</option></select></div></div>
+    <div style="text-align:right"><button class="btn ghost" onclick="closeModal()">Hủy</button><button class="btn primary" onclick="saveEditBooking('${b.id}')">Lưu</button></div>`);
+  document.getElementById('m_book_status').value = b.status;
+}
+function saveEditBooking(id){
+  const bidx = state.bookings.findIndex(x=>x.id===id); if(bidx<0) return;
+  const cust = document.getElementById('m_book_cust').value;
+  const date = document.getElementById('m_book_date').value;
+  const svcId = document.getElementById('m_book_svc').value;
+  const techId = document.getElementById('m_book_tech').value;
+  const time = document.getElementById('m_book_time').value;
+  const phone = document.getElementById('m_book_phone').value.trim();
+  const status = document.getElementById('m_book_status').value;
+  if(!date || !svcId || !techId || !time) return alert('Thiếu thông tin');
+  let customerId = cust;
+  if(cust === '_new'){ if(!phone) return alert('Nhập SĐT cho khách mới'); const name=prompt('Tên khách mới:'); if(!name) return alert('Chưa nhập tên'); const newC={id:uid(),name:name.trim(),phone,visits:0,note:''}; state.customers.push(newC); customerId=newC.id; }
+  const svc = state.services.find(s=>s.id===svcId); const dur = svc?svc.duration:60;
+  const sMin=timeToMin(time), eMin=sMin+dur;
+  const conflict = state.bookings.some(b=> b.id!==id && b.date===date && b.techId===techId && !( (timeToMin(b.time)+(state.services.find(x=>x.id===b.serviceId)?.duration||60)) <= sMin || eMin <= timeToMin(b.time) ) );
+  if(conflict && !confirm('Lịch trùng — vẫn lưu?')) return;
+  state.bookings[bidx] = {...state.bookings[bidx], date, time, serviceId:svcId, techId, customerId, customerName: state.customers.find(c=>c.id===customerId).name, phone: phone || state.customers.find(c=>c.id===customerId).phone, status, paid: status==='done'};
+  saveState(); closeModal(); renderBookings(); renderCustomers();
+}
+function completeBooking(id){ const b = state.bookings.find(x=>x.id===id); if(!b) return; b.status='done'; b.paid=true; const cust = state.customers.find(c=>c.id===b.customerId); if(cust) cust.visits=(cust.visits||0)+1; saveState(); renderBookings(); renderDashboard(); }
+function deleteBooking(id){ if(!confirm('Xóa lịch này?')) return; state.bookings = state.bookings.filter(x=>x.id!==id); saveState(); renderBookings(); }
+
+/* ---------- exports ---------- */
+function exportBookings(){
+  const rows = [['Ngày','Giờ','Khách','SĐT','Dịch vụ','KTV','Giá','Trạng thái']];
+  state.bookings.forEach(b=>{ const svc=state.services.find(s=>s.id===b.serviceId); const tech=state.techs.find(t=>t.id===b.techId); rows.push([b.date,b.time,b.customerName,b.phone,svc?svc.name:'',tech?tech.name:'',svc?svc.price:'',b.status]); });
+  downloadCSV(rows,'bookings.csv');
+}
+function exportCustomers(){ const rows=[['Tên','SĐT','Lần đến','Ghi chú']]; state.customers.forEach(c=>rows.push([c.name,c.phone,c.visits||0,c.note||''])); downloadCSV(rows,'customers.csv'); }
+function exportServices(){ const rows=[['Tên','Giá','Thời lượng']]; state.services.forEach(s=>rows.push([s.name,s.price,s.duration])); downloadCSV(rows,'services.csv'); }
+function exportTechs(){ const rows=[['Tên','Phone','% hoa hồng','Trạng thái']]; state.techs.forEach(t=>rows.push([t.name,t.phone,t.rate,t.active?'Đang làm':'Tạm nghỉ'])); downloadCSV(rows,'techs.csv'); }
+function exportRevenue(){
+  const month = document.getElementById('rev_month').value || (new Date()).toISOString().slice(0,7);
+  const inMonth = state.bookings.filter(b=>b.status==='done' && b.date.startsWith(month));
+  const map = {}; inMonth.forEach(b=>{ const svc=state.services.find(s=>s.id===b.serviceId); const price=svc?svc.price:0; const tech=state.techs.find(t=>t.id===b.techId); const key=tech?tech.id:'unknown'; if(!map[key]) map[key]={name:tech?tech.name:'-',jobs:0,revenue:0,rate:tech?tech.rate:state.store.defaultCommission}; map[key].jobs++; map[key].revenue+=price; });
+  const rows=[['KTV','Số ca','Doanh thu','%','Hoa hồng']]; Object.values(map).forEach(r=>rows.push([r.name,r.jobs,r.revenue,r.rate,Math.round(r.revenue*(r.rate/100))])); downloadCSV(rows,`revenue_${month}.csv`);
+}
+
+/* ---------- settings & users ---------- */
+function saveSettings(){ const name=document.getElementById('spa_name').value.trim()||'Spa Pro'; const comm=Number(document.getElementById('spa_comm').value)||32; state.store.name=name; state.store.defaultCommission=comm; saveState(); alert('Lưu thành công'); }
+function registerUser(){ const u=document.getElementById('new_user').value.trim(); const p=document.getElementById('new_pass').value; const r=document.getElementById('new_role').value; if(!u||!p) return alert('Nhập username & password'); if(state.users.some(x=>x.username===u)) return alert('Username đã tồn tại'); state.users.push({id:uid(), username:u, password:btoa(p), role:r, name:u}); saveState(); alert('Đã đăng ký'); }
+function resetData(){ if(!confirm('Xóa dữ liệu và nạp lại mẫu?')) return; localStorage.removeItem(LS_KEY); state = loadState(); location.reload(); }
+
+/* ---------- backup/restore ---------- */
+function backup(){ const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`spa_backup_${today()}.json`; a.click(); URL.revokeObjectURL(url); }
+document.getElementById('fileRestore').addEventListener('change', (e)=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload = ()=>{ try{ const d=JSON.parse(r.result); if(!d.store) throw new Error('File không hợp lệ'); if(!confirm('Phục hồi dữ liệu? (ghi đè)')) return; state=d; saveState(); location.reload(); }catch(err){ alert('File không hợp lệ'); } }; r.readAsText(f); });
+
+/* ---------- utilities ---------- */
+function escapeHtml(s){ if(s===null||s===undefined) return ''; return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+function escapeAttr(s){ return (s||'').replace(/"/g,'&quot;'); }
+function downloadCSV(rows, filename){
+  const csv = rows.map(r=> r.map(cell=> {
+    if(cell===null||cell===undefined) return '';
+    const s = String(cell);
+    return (s.includes(',')||s.includes('"')||s.includes('\n')) ? `"${s.replace(/"/g,'""')}"` : s;
+  }).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; a.click(); URL.revokeObjectURL(url);
+}
+
+/* ---------- quick actions for edit buttons (exposed) ---------- */
+window.editCustomer = (id)=>{ editCustomer(id); };
+window.editService = (id)=>{ editService(id); };
+window.editTech = (id)=>{ editTech(id); };
+window.editBooking = (id)=>{ editBooking(id); };
+
+/* ---------- global search ---------- */
+function doGlobalSearch(q){
+  q = (q||'').toLowerCase().trim();
+  if(!q){ renderAll(); return; }
+  // bookings search
+  const bk = state.bookings.filter(b=> (b.customerName||'').toLowerCase().includes(q) || (b.phone||'').includes(q) || (state.services.find(s=>s.id===b.serviceId)?.name||'').toLowerCase().includes(q) );
+  if(bk.length) { document.getElementById('tb_bookings').innerHTML = bk.map(b=>`<tr><td>${b.date}</td><td>${b.time}</td><td>${escapeHtml(b.customerName)}</td><td>${escapeHtml(b.phone)}</td><td>${escapeHtml(state.services.find(s=>s.id===b.serviceId)?.name||'')}</td><td>${escapeHtml(state.techs.find(t=>t.id===b.techId)?.name||'')}</td><td>${fmtMoney(state.services.find(s=>s.id===b.serviceId)?.price||0)}</td><td>${escapeHtml(b.status)}</td><td><button class="btn small" onclick="editBooking('${b.id}')">Sửa</button></td></tr>`).join(''); }
+  // customers
+  const cs = state.customers.filter(c=> (c.name||'').toLowerCase().includes(q) || (c.phone||'').includes(q));
+  if(cs.length) document.getElementById('tb_customers').innerHTML = cs.map(c=>`<tr><td>${escapeHtml(c.name)}</td><td>${escapeHtml(c.phone)}</td><td>${c.visits||0}</td><td>${escapeHtml(c.note||'')}</td><td><button class="btn small" onclick="editCustomer('${c.id}')">Sửa</button></td></tr>`).join('');
+}
+
+/* ---------- theme toggle ---------- */
+function toggleTheme(){ document.documentElement.classList.toggle('dark'); }
+
+/* ---------- start ---------- */
+(function init(){
+  // show login if no session
+  if(!session){ loginView.style.display='flex'; appView.style.display='none'; } else { enterApp(); }
+  // wire initial elements
+  document.getElementById('spa_name').value = state.store.name || 'Spa Pro';
+  document.getElementById('spa_comm').value = state.store.defaultCommission || 32;
+  document.getElementById('rev_month').value = (new Date()).toISOString().slice(0,7);
+  // render initial tables (data sample kept)
+  renderAll();
+})();
 </script>
 </body>
 </html>
